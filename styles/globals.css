@@ -1,0 +1,91 @@
+@import url(https://fonts.googleapis.com/css?family=Lato:100,100italic,300,300italic,regular,italic,700,700italic,900,900italic);
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+html,
+body {
+  padding: 0;
+  margin: 0;
+  scroll-behavior: smooth;
+}
+
+* {
+  box-sizing: border-box;
+  font-family: "Lato", sans-serif;
+}
+
+table, thead, tbody, tr, th, td {
+  border-color: #aaa !important;
+
+}
+
+.scrollbar-hide::-webkit-scrollbar {
+    display: none !important;
+}
+
+/* For IE, Edge and Firefox */
+.scrollbar-hide {
+    -ms-overflow-style: none !important;  /* IE and Edge */
+    scrollbar-width: none !important;  /* Firefox */
+}
+
+::-webkit-scrollbar {
+  width: 4px;
+}
+
+::-webkit-scrollbar-thumb {
+  background-color: rgb(237, 237, 237);
+  border-radius: 40px;
+}
+
+::-webkit-scrollbar-track {
+  background-color: transparent;
+}
+
+body {
+  width: 100%;
+  min-height: 100vh;
+  overflow-x: hidden;
+  -webkit-perspective: 10000;
+  perspective: 10000;
+
+}
+
+input:-webkit-autofill,
+input:-webkit-autofill:hover, 
+input:-webkit-autofill:focus, 
+input:-webkit-autofill:active{
+    -webkit-box-shadow: 0 0 0 30px white inset !important;
+}
+
+input:-webkit-autofill{
+    -webkit-text-fill-color: black !important;
+}
+
+a {
+  text-decoration: none;
+}
+
+
+.showcase {
+  min-height: 55vh;
+  position: fixed;
+  width: 100%;
+  z-index : -1000;
+}
+
+.showcase::after {
+    width: 100%;
+    max-width: 2500px;
+    margin: 0 auto;
+    content: "";
+    position: absolute;
+    height: 4.25rem;
+    bottom: -2.5rem;
+    right: 0;
+    left: 0;
+    transform: skewY(-1.5deg);
+    -webkit-transform: skewY(-1.5deg);
+}
