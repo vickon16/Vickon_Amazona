@@ -7,7 +7,12 @@ import {
   ImagesDisplay,
 } from "@/components";
 import { useStoreContext } from "@/store";
-import { IFormInputs, IProduct } from "@/types";
+import {
+  IFormInputs,
+  IProduct,
+  brandStateType,
+  categoryStateType,
+} from "@/types";
 import { API, getError } from "@/utils";
 import { urlForThumbnail } from "@/utils/image";
 import { Button } from "@mui/material";
@@ -17,11 +22,23 @@ import { useRouter } from "next/router";
 import { useSnackbar } from "notistack";
 import { useEffect, useState } from "react";
 
+const categoryInitialState = {
+  category: "White",
+  categories: [],
+  categoryData: [],
+};
+
+const brandInitialState = {
+  brand: "Nike",
+  brands: [],
+  brandData: [],
+};
+
 export default function Home() {
-  const [index, setIndex] = useState(0);
-  const [category, setCategory] = useState("White");
-  const [categoriesArr, setCategoriesArr] = useState([]);
-  const [categoryData, setCategoryData] = useState<IProduct[] | []>([]);
+  const [{ categories, category, categoryData }, setCategoryState] =
+    useState<categoryStateType>(categoryInitialState);
+  const [{ brand, brands, brandData }, setBrandState] =
+    useState<brandStateType>(brandInitialState);
   const [loading, setIsLoading] = useState(true);
   const [error, setIsError] = useState("");
   const { enqueueSnackbar } = useSnackbar();
@@ -46,29 +63,25 @@ export default function Home() {
   };
 
   useEffect(() => {
-    if (allProducts.length === 0) return;
-
-    const timer = setInterval(() => {
-      const random = Math.round(Math.random() * allProducts.length - 1);
-      setIndex(random);
-    }, 120000);
-
-    return () => clearInterval(timer);
-  }, [allProducts.length]);
-
-  useEffect(() => {
     const fetchData = async () => {
       try {
         const { data } = await API.get(`/api/products`);
-        const { data: catData } = await API.get(
+        const { data: categoryData } = await API.get(
           `/api/products/categories/${category}`
         );
-        const { data: allCategories } = await API.get(
+        const { data: categories } = await API.get(
           `/api/products/categories`
         );
+        const { data: brandData } = await API.get(
+          `/api/products/brands/${brand}`
+        );
+        const { data: brands } = await API.get(`/api/products/brands`);
+
+        // dispatch all product data
         dispatch({ type: "PRODUCT_ADD_ITEM", payload: data.slice(0, 20) });
-        setCategoryData(catData);
-        setCategoriesArr(allCategories);
+        setCategoryState(prev => ({...prev, categoryData, categories}));
+        setBrandState(prev => ({...prev, brandData, brands}));
+
       } catch (err: any) {
         setIsError(getError(err));
       } finally {
@@ -77,7 +90,7 @@ export default function Home() {
     };
 
     fetchData();
-  }, [category, dispatch, userInfo]);
+  }, [brand, category, dispatch, userInfo]);
 
   return (
     <Layout>
@@ -102,10 +115,15 @@ export default function Home() {
               <br />
               Over 10000+ accessories sold to date.
             </article>
-            <p className="text-sm text-gray-700 dark:text-gray-300">Explore our new arrivals</p>
+            <p className="text-sm text-gray-700 dark:text-gray-300">
+              Explore our new arrivals
+            </p>
 
             <Link href="/search">
-              <Button variant="outlined" className=" !text-bgDark dark:!text-bgWhite !border-bgDark dark:!border-bgWhite">
+              <Button
+                variant="outlined"
+                className=" !text-bgDark dark:!text-bgWhite !border-bgDark dark:!border-bgWhite"
+              >
                 Explore
               </Button>
             </Link>
@@ -118,15 +136,11 @@ export default function Home() {
           style={{ transform: "rotateY(-40deg) rotateZ(-2deg)" }}
         >
           <Image
-            src={
-              index !== 0 && allProducts.length > 0
-                ? urlForThumbnail(allProducts[index]?.image, 480)
-                : "/assets/shirts/blue5.png"
-            }
+            src={"/assets/shirts/blue5.png"}
             alt="home-image"
             width={480}
             height={480}
-            className="w-full h-auto object-cover"
+            className="w-full h-auto object-cover rounded-md"
             priority
             placeholder="blur"
             blurDataURL="/assets/blur-image.jpeg"
@@ -179,11 +193,16 @@ export default function Home() {
             </label>
             <select
               value={category}
-              onChange={(e: any) => setCategory(e.target.value)}
+              onChange={(e: any) =>
+                setCategoryState((prev) => ({
+                  ...prev,
+                  category: e.target.value,
+                }))
+              }
               className="px-3 py-2 text-md sm:text-lg bg-primary2 dark:bg-secondary2 shadow-lg hover:opacity-80 cursor-pointer rounded-md outline-none border-0"
             >
-              {categoriesArr.length > 0 ? (
-                categoriesArr.map((cat, i) => (
+              {categories.length > 0 ? (
+                categories.map((cat, i) => (
                   <option key={cat + i} value={cat}>
                     {cat}
                   </option>
@@ -197,6 +216,48 @@ export default function Home() {
           <ProductsSection
             title={`Category - ${category}`}
             allProducts={categoryData}
+          />
+        </section>
+      )}
+
+      {/* brand section */}
+      {loading ? (
+        <div className="w-full h-full flex items-center">
+          <Loader />
+        </div>
+      ) : error ? (
+        <Error error={error} />
+      ) : (
+        <section className="mt-10">
+          <div className="flex items-center gap-x-3">
+            <label className="text-md sm:text-lg font-semibold mr-2">
+              Select Brand :{" "}
+            </label>
+            <select
+              value={brand}
+              onChange={(e: any) =>
+                setBrandState((prev) => ({
+                  ...prev,
+                  brand: e.target.value,
+                }))
+              }
+              className="px-3 py-2 text-md sm:text-lg bg-primary2 dark:bg-secondary2 shadow-lg hover:opacity-80 cursor-pointer rounded-md outline-none border-0"
+            >
+              {brands.length > 0 ? (
+                brands.map((brand, i) => (
+                  <option key={brand + i} value={brand}>
+                    {brand}
+                  </option>
+                ))
+              ) : (
+                <div>No Brand Available</div>
+              )}
+            </select>
+          </div>
+
+          <ProductsSection
+            title={`Brand - ${brand}`}
+            allProducts={brandData}
           />
         </section>
       )}

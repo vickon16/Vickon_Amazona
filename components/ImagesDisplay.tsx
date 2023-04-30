@@ -31,7 +31,7 @@ const ImagesDisplay = ({categoryData} : Props) => {
             <div className="image-container w-[200px] py-4">
               <Image
                 src={urlFor(categoryData[index]?.image, 200)}
-                className="w-full h-auto object-contain"
+                className="w-full h-auto object-contain rounded-xl"
                 alt="sanity-image"
                 width={200}
                 height={200}
@@ -56,7 +56,7 @@ const ImagesDisplay = ({categoryData} : Props) => {
               >
                 <Image
                   src={urlFor(category?.image , 200)}
-                  className="w-full h-auto object-contain"
+                  className="w-full h-auto object-contain rounded-md"
                   alt="sanity-image"
                   width={200}
                   height={200}

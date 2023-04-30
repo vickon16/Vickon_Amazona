@@ -7,7 +7,7 @@ export default defineConfig({
   name: 'default',
   title: 'Vickon-Amazona',
 
-  projectId: '2pbmdekw',
+  projectId: 'g7mcpdu8',
   dataset: 'production',
 
   plugins: [deskTool(), visionTool()],

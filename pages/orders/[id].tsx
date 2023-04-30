@@ -189,6 +189,7 @@ function OrderScreen({ id: orderId }: { id: string }) {
                             alt={item.name}
                             width={50}
                             height={50}
+                            className="rounded-md"
                           />
                         </TableCell>
                         <TableCell className="!text-base dark:text-bgWhite">

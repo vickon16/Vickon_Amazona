@@ -79,7 +79,7 @@ const ProductScreen = ({ product }: { product: IProduct }) => {
                   alt="Product-image"
                   width={300}
                   height={300}
-                  className="w-full h-auto object-cover"
+                  className="w-full h-auto object-cover rounded-md"
                 />
               </div>
             </Grid>

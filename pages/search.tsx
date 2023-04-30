@@ -121,7 +121,7 @@ export default function SearchScreen() {
         <Grid
           item
           md={3}
-          className="p-2 !flex !flex-col gap-y-3 w-full max-w-[300px]"
+          className="p-2 !flex !flex-col gap-y-3 w-full max-w-[300px] h-fit  md2:!sticky md2:!top-28"
         >
           {/* categories */}
           <div className="w-full flex flex-col gap-y-2">

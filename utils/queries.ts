@@ -105,3 +105,9 @@ export const getByCategoryQuery = (category: string | string[] | undefined) => {
 
   return query;
 };
+
+export const getByBrandQuery = (brand: string | string[] | undefined) => {
+  const query = `*[_type == "products" && brand match '${brand}*']`;
+
+  return query;
+};

@@ -50,7 +50,7 @@ const Product = ({ product }: Props) => {
         <Image
           src={urlFor(image, 130)}
           alt="product"
-          className="w-full h-auto object-cover group-hover:scale-105 transition-all ease-in-out duration-200"
+          className="w-full h-auto object-cover group-hover:scale-105 transition-all ease-in-out duration-200 rounded-md"
           width={130}
           height={150}
           placeholder="blur"
