@@ -20,8 +20,6 @@ const ImagesDisplay = ({categoryData} : Props) => {
     }
   };
 
-  console.log(categoryData)
-
   return (
     <>
       {categoryData.length > 0 ? (

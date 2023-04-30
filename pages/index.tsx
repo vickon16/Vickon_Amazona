@@ -14,7 +14,6 @@ import {
   categoryStateType,
 } from "@/types";
 import { API, getError } from "@/utils";
-import { urlForThumbnail } from "@/utils/image";
 import { Button } from "@mui/material";
 import Image from "next/image";
 import Link from "next/link";
@@ -65,23 +64,34 @@ export default function Home() {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const { data } = await API.get(`/api/products`);
-        const { data: categoryData } = await API.get(
-          `/api/products/categories/${category}`
-        );
-        const { data: categories } = await API.get(
-          `/api/products/categories`
-        );
-        const { data: brandData } = await API.get(
-          `/api/products/brands/${brand}`
-        );
-        const { data: brands } = await API.get(`/api/products/brands`);
+        const results = await Promise.allSettled([
+          API.get(`/api/products`),
+          API.get(`/api/products/categories/${category}`),
+          API.get(`/api/products/categories`),
+          API.get(`/api/products/brands/${brand}`),
+          API.get(`/api/products/brands`),
+        ]);
 
-        // dispatch all product data
-        dispatch({ type: "PRODUCT_ADD_ITEM", payload: data.slice(0, 20) });
-        setCategoryState(prev => ({...prev, categoryData, categories}));
-        setBrandState(prev => ({...prev, brandData, brands}));
+        const fulfilledResults = results
+          .filter((result) => result.status === "fulfilled")
+          // @ts-ignore
+          .map((result) => result.value.data);
 
+        const rejected = results
+          .filter((result) => result.status === "rejected")
+          // @ts-ignore
+          .map((result : any) => {throw new Error(result.reason)});
+
+        const [allProductsData, categoryData, categories, brandData, brands] =
+          fulfilledResults;
+
+        dispatch({
+          type: "PRODUCT_ADD_ITEM",
+          payload: allProductsData.slice(0, 20),
+        });
+
+        setCategoryState((prev) => ({ ...prev, categories, categoryData }));
+        setBrandState((prev) => ({ ...prev, brandData, brands }));
       } catch (err: any) {
         setIsError(getError(err));
       } finally {
@@ -255,10 +265,7 @@ export default function Home() {
             </select>
           </div>
 
-          <ProductsSection
-            title={`Brand - ${brand}`}
-            allProducts={brandData}
-          />
+          <ProductsSection title={`Brand - ${brand}`} allProducts={brandData} />
         </section>
       )}
     </Layout>
