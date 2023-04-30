@@ -9,11 +9,13 @@ import {
 import { useStoreContext } from "@/store";
 import {
   IFormInputs,
+  IProduct,
   brandStateType,
   categoryStateType,
 } from "@/types";
 import { API, getError } from "@/utils";
 import { Button } from "@mui/material";
+import dynamic from "next/dynamic";
 import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/router";
@@ -22,21 +24,20 @@ import { useEffect, useState } from "react";
 
 const categoryInitialState = {
   category: "White",
+  categories: [],
   categoryData: [],
 };
 
 const brandInitialState = {
   brand: "Nike",
+  brands: [],
   brandData: [],
 };
 
-const categories = ["Blue", "Red", "White", "Gray", "Brown", "Black", "Green"];
-const brands = ["Oliver", "Casely", "Nike", "Adidas"];
-
-export default function Home() {
-  const [{ category, categoryData }, setCategoryState] =
+function Home() {
+  const [{ categories, category, categoryData }, setCategoryState] =
     useState<categoryStateType>(categoryInitialState);
-  const [{ brand, brandData }, setBrandState] =
+  const [{ brand, brands, brandData }, setBrandState] =
     useState<brandStateType>(brandInitialState);
   const [loading, setIsLoading] = useState(true);
   const [error, setIsError] = useState("");
@@ -67,7 +68,9 @@ export default function Home() {
         const results = await Promise.allSettled([
           API.get(`/api/products`).catch(e => e),
           API.get(`/api/products/categories/${category}`).catch(e => e),
+          API.get(`/api/products/categories`).catch(e => e),
           API.get(`/api/products/brands/${brand}`).catch(e => e),
+          API.get(`/api/products/brands`),
         ]);
 
         const fulfilledResults = results
@@ -75,7 +78,7 @@ export default function Home() {
           // @ts-ignore
           .map((result) => result.value.data);
 
-        const [allProductsData, categoryData, brandData] =
+        const [allProductsData, categoryData, categories, brandData, brands] =
           fulfilledResults;
 
         dispatch({
@@ -83,8 +86,8 @@ export default function Home() {
           payload: allProductsData.slice(0, 20),
         });
 
-        setCategoryState((prev) => ({ ...prev, categoryData }));
-        setBrandState((prev) => ({ ...prev, brandData}));
+        setCategoryState((prev) => ({ ...prev, categories, categoryData }));
+        setBrandState((prev) => ({ ...prev, brandData, brands }));
       } catch (err: any) {
         setIsError(getError(err));
       } finally {
@@ -264,3 +267,5 @@ export default function Home() {
     </Layout>
   );
 }
+
+export default dynamic(() => Promise.resolve(Home), { ssr: false });

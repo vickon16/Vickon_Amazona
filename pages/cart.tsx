@@ -20,6 +20,7 @@ import { IProduct } from "@/types";
 import { useSnackbar } from "notistack";
 import { ArrowBack } from "@mui/icons-material";
 import { urlFor } from "@/utils/image";
+import dynamic from "next/dynamic";
 
 const Cart = () => {
   const {
@@ -176,4 +177,4 @@ const Cart = () => {
   );
 };
 
-export default Cart;
+export default dynamic(() => Promise.resolve(Cart), { ssr: false });

@@ -19,6 +19,7 @@ import { useStoreContext } from "@/store";
 import { API } from "@/utils";
 import { urlFor } from "@/utils/image";
 import { Loader } from "@/components";
+import dynamic from "next/dynamic";
 
 function PlaceOrderScreen() {
   const { enqueueSnackbar } = useSnackbar();
@@ -220,4 +221,4 @@ function PlaceOrderScreen() {
   );
 }
 
-export default PlaceOrderScreen;
+export default dynamic(() => Promise.resolve(PlaceOrderScreen), { ssr: false });

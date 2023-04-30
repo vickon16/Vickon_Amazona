@@ -16,6 +16,7 @@ import { useStoreContext } from "@/store";
 import { API, formatDateAgo, getError } from "@/utils";
 import { IOrder } from "@/types";
 import Link from "next/link";
+import dynamic from "next/dynamic";
 
 type orderStateType = {
   loading: boolean;
@@ -142,4 +143,4 @@ function OrderHistoryScreen() {
     </Layout>
   );
 }
-export default OrderHistoryScreen;
+export default dynamic(() => Promise.resolve(OrderHistoryScreen), { ssr: false });

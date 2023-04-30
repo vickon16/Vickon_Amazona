@@ -26,6 +26,7 @@ import { useStoreContext } from "@/store";
 import { urlFor } from "@/utils/image";
 import { ArrowBack } from "@mui/icons-material";
 import Link from "next/link";
+import dynamic from "next/dynamic";
 
 function OrderScreen({ id: orderId }: { id: string }) {
   const { enqueueSnackbar } = useSnackbar();
@@ -275,4 +276,4 @@ export async function getServerSideProps({
   return { props: { id } };
 }
 
-export default OrderScreen;
+export default dynamic(() => Promise.resolve(OrderScreen), { ssr: false });

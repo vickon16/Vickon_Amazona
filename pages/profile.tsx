@@ -7,6 +7,7 @@ import {Layout} from "../components";
 import { API, formatDateAgo, getError } from "@/utils";
 import { useStoreContext } from "@/store";
 import { IFormInputs } from "@/types";
+import dynamic from "next/dynamic";
 
 function ProfileScreen() {
   const router = useRouter();
@@ -232,4 +233,4 @@ function ProfileScreen() {
   );
 }
 
-export default ProfileScreen;
+export default dynamic(() => Promise.resolve(ProfileScreen), { ssr: false });
