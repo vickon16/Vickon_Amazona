@@ -11,9 +11,8 @@ import React, { useEffect, useState } from "react";
 import { CheckoutWizard, Layout } from "../components";
 import { useStoreContext } from "@/store";
 import Cookies from "js-cookie";
-import dynamic from "next/dynamic";
 
-function PaymentScreen() {
+export default function PaymentScreen() {
   const { enqueueSnackbar } = useSnackbar();
   const router = useRouter();
   const [paymentMethod, setPaymentMethod] = useState("");
@@ -102,5 +101,3 @@ function PaymentScreen() {
     </Layout>
   );
 }
-
-export default dynamic(() => Promise.resolve(PaymentScreen), { ssr: false });

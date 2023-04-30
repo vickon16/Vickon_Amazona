@@ -127,7 +127,7 @@ const Header = () => {
                 <Link
                   className={listStyles}
                   onClick={closeNavModal}
-                  href={`/order-history`}
+                  href={`/order-history?id=${userInfo?._id}`}
                 >
                   <span>Order History</span>
                 </Link>

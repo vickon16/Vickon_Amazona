@@ -80,15 +80,3 @@ export type ISearchType = {
   rating? : string;
   query? : string;
 };
-
-export type categoryStateType = {
-  category: string;
-  categories: string[];
-  categoryData: IProduct[] | [];
-};
-
-export type brandStateType = {
-  brand: string;
-  brands: string[];
-  brandData: IProduct[] | [];
-};

@@ -10,7 +10,6 @@ import { useRouter } from "next/router";
 import { useSnackbar } from "notistack";
 import React from "react";
 import { ArrowBack } from "@mui/icons-material";
-import dynamic from "next/dynamic";
 
 const ProductScreen = ({ product }: { product: IProduct }) => {
   const {
@@ -150,6 +149,7 @@ const ProductScreen = ({ product }: { product: IProduct }) => {
   );
 };
 
+export default ProductScreen;
 
 export const getServerSideProps = async (context: any) => {
   const {data} = await API.get(`/api/products/${context.params?.slug}`);
@@ -158,5 +158,3 @@ export const getServerSideProps = async (context: any) => {
     props: { product: data },
   };
 };
-
-export default dynamic(() => Promise.resolve(ProductScreen), { ssr: false });
