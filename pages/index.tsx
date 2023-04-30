@@ -65,10 +65,10 @@ export default function Home() {
     const fetchData = async () => {
       try {
         const results = await Promise.allSettled([
-          API.get(`/api/products`),
-          API.get(`/api/products/categories/${category}`),
-          API.get(`/api/products/categories`),
-          API.get(`/api/products/brands/${brand}`),
+          API.get(`/api/products`).catch(e => e),
+          API.get(`/api/products/categories/${category}`).catch(e => e),
+          API.get(`/api/products/categories`).catch(e => e),
+          API.get(`/api/products/brands/${brand}`).catch(e => e),
           API.get(`/api/products/brands`),
         ]);
 
@@ -76,11 +76,6 @@ export default function Home() {
           .filter((result) => result.status === "fulfilled")
           // @ts-ignore
           .map((result) => result.value.data);
-
-        const rejected = results
-          .filter((result) => result.status === "rejected")
-          // @ts-ignore
-          .map((result : any) => {throw new Error(result.reason)});
 
         const [allProductsData, categoryData, categories, brandData, brands] =
           fulfilledResults;

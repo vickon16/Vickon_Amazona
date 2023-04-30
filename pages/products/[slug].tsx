@@ -1,7 +1,7 @@
 import { Layout } from "@/components";
 import { IProduct } from "@/types";
 import { API } from "@/utils";
-import { urlFor} from "@/utils/image";
+import { urlFor } from "@/utils/image";
 import { useStoreContext } from "@/store";
 import { Button, Grid, Rating } from "@mui/material";
 import Image from "next/image";
@@ -151,14 +151,10 @@ const ProductScreen = ({ product }: { product: IProduct }) => {
 
 export default ProductScreen;
 
-export const getServerSideProps = async ({
-  params: { slug },
-}: {
-  params: { slug: string };
-}) => {
-  const resp = await API.get(`/api/products/${slug}`);
+export const getServerSideProps = async (context: any) => {
+  const {data} = await API.get(`/api/products/${context.params?.slug}`);
 
   return {
-    props: { product: resp.data },
+    props: { product: data },
   };
 };
