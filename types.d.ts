@@ -83,12 +83,10 @@ export type ISearchType = {
 
 export type categoryStateType = {
   category: string;
-  categories: string[];
   categoryData: IProduct[] | [];
 };
 
 export type brandStateType = {
   brand: string;
-  brands: string[];
   brandData: IProduct[] | [];
 };

@@ -9,7 +9,6 @@ import {
 import { useStoreContext } from "@/store";
 import {
   IFormInputs,
-  IProduct,
   brandStateType,
   categoryStateType,
 } from "@/types";
@@ -23,20 +22,21 @@ import { useEffect, useState } from "react";
 
 const categoryInitialState = {
   category: "White",
-  categories: [],
   categoryData: [],
 };
 
 const brandInitialState = {
   brand: "Nike",
-  brands: [],
   brandData: [],
 };
 
+const categories = ["Blue", "Red", "White", "Gray", "Brown", "Black", "Green"];
+const brands = ["Oliver", "Casely", "Nike", "Adidas"];
+
 export default function Home() {
-  const [{ categories, category, categoryData }, setCategoryState] =
+  const [{ category, categoryData }, setCategoryState] =
     useState<categoryStateType>(categoryInitialState);
-  const [{ brand, brands, brandData }, setBrandState] =
+  const [{ brand, brandData }, setBrandState] =
     useState<brandStateType>(brandInitialState);
   const [loading, setIsLoading] = useState(true);
   const [error, setIsError] = useState("");
@@ -67,9 +67,7 @@ export default function Home() {
         const results = await Promise.allSettled([
           API.get(`/api/products`).catch(e => e),
           API.get(`/api/products/categories/${category}`).catch(e => e),
-          API.get(`/api/products/categories`).catch(e => e),
           API.get(`/api/products/brands/${brand}`).catch(e => e),
-          API.get(`/api/products/brands`),
         ]);
 
         const fulfilledResults = results
@@ -77,16 +75,16 @@ export default function Home() {
           // @ts-ignore
           .map((result) => result.value.data);
 
-        const [allProductsData, categoryData, categories, brandData, brands] =
+        const [allProductsData, categoryData, brandData] =
           fulfilledResults;
 
         dispatch({
           type: "PRODUCT_ADD_ITEM",
-          payload: allProductsData,
+          payload: allProductsData.slice(0, 20),
         });
 
-        setCategoryState((prev) => ({ ...prev, categories, categoryData }));
-        setBrandState((prev) => ({ ...prev, brandData, brands }));
+        setCategoryState((prev) => ({ ...prev, categoryData }));
+        setBrandState((prev) => ({ ...prev, brandData}));
       } catch (err: any) {
         setIsError(getError(err));
       } finally {
