@@ -82,7 +82,7 @@ export default function Home() {
 
         dispatch({
           type: "PRODUCT_ADD_ITEM",
-          payload: allProductsData.slice(0, 20),
+          payload: allProductsData,
         });
 
         setCategoryState((prev) => ({ ...prev, categories, categoryData }));
