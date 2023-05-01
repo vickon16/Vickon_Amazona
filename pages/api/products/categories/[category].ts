@@ -14,7 +14,7 @@ export default async function handler(
       const data = await client.fetch(query);
       res.status(200).json(data);
     } catch (error) {
-      res.status(500).json(`Failed to fetch product with category of '${category}'`)
+      res.status(500).json(`Failed to fetch product`)
     }
   } else {
     res.status(500).json("Bad Request");

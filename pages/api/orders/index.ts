@@ -19,7 +19,7 @@ export default async function handler(
     };
 
     if (!user) {
-      res.status(401).json("User does not exist");
+      res.status(500).json("User does not exist");
       return;
     }
 
