@@ -38,7 +38,9 @@ export default function Home() {
     useState<categoryStateType>(categoryInitialState);
   const [{ brand, brands, brandData }, setBrandState] =
     useState<brandStateType>(brandInitialState);
-  const [loading, setIsLoading] = useState(true);
+  const [loadingProducts, setIsLoadingProducts] = useState(true);
+  const [loadingCategories, setIsLoadingCategories] = useState(true);
+  const [loadingBrands, setIsLoadingBrands] = useState(true);
   const [error, setIsError] = useState("");
   const { enqueueSnackbar } = useSnackbar();
   const {
@@ -64,27 +66,23 @@ export default function Home() {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const results = await Promise.all([
-          API.get(`/api/products`).then(promise=> promise.data.slice(0, 20)),
-          API.get(`/api/products/categories/${category}`).then(promise=> promise.data.slice(0, 20)),
-          API.get(`/api/products/brands/${brand}`).then(promise=> promise.data.slice(0, 20)),
-        ]);
-
-        const [allProductsData, categoryData, brandData] = results
-
-        console.log(allProductsData, categoryData, brandData)
-
+        const {data : allProductsData} =  await API.get(`/api/products`);
         dispatch({
           type: "PRODUCT_ADD_ITEM",
           payload: allProductsData,
         });
+        setIsLoadingProducts(false);
 
+        const {data : categoryData} = await  API.get(`/api/products/categories/${category}`);
         setCategoryState((prev) => ({ ...prev, categoryData }));
+        setIsLoadingCategories(false);
+
+        const {data : brandData} = await API.get(`/api/products/brands/${brand}`);
         setBrandState((prev) => ({ ...prev, brandData }));
+        setIsLoadingBrands(false);
+
       } catch (err: any) {
         setIsError(getError(err));
-      } finally {
-        setIsLoading(false);
       }
     };
 
@@ -150,7 +148,7 @@ export default function Home() {
         <div className="w-full flex-1 lg:mt-10">
           {!userInfo ? (
             <FormLogin submitHandler={submitHandler} />
-          ) : loading ? (
+          ) : loadingCategories ? (
             <div className="w-full h-full flex items-center justify-center">
               <Loader />
             </div>
@@ -165,7 +163,7 @@ export default function Home() {
       </section>
 
       {/* all products section */}
-      {loading ? (
+      {loadingProducts ? (
         <div className="w-full h-full flex items-center">
           <Loader />
         </div>
@@ -178,7 +176,7 @@ export default function Home() {
       )}
 
       {/* categories section */}
-      {loading ? (
+      {loadingCategories ? (
         <div className="w-full h-full flex items-center">
           <Loader />
         </div>
@@ -220,7 +218,7 @@ export default function Home() {
       )}
 
       {/* brand section */}
-      {loading ? (
+      {loadingBrands ? (
         <div className="w-full h-full flex items-center">
           <Loader />
         </div>
