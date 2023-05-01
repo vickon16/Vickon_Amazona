@@ -67,7 +67,7 @@ function OrderScreen({ id: orderId }: { id: string }) {
     }
     else {
       const loadPaypalScript = async () => {
-        const clientId = process.env.PAYPAL_CLIENT_ID || "sb";
+        const clientId = process.env.NEXT_PUBLIC_PAYPAL_CLIENT_ID || "sb";
 
         paypalDispatch({
           type: "resetOptions",
