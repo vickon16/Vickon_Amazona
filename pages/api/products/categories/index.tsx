@@ -27,9 +27,3 @@ export default async function handler(
     res.status(500).json("Bad Request");
   }
 }
-
-// [
-//   { category: [ 'Red' ] },
-//   { category: [ 'Green' ] },
-//   { category: [ 'White' ] },
-// ]

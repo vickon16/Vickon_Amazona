@@ -51,7 +51,7 @@ export default function SearchScreen() {
   useEffect(() => {
     const fetchCategories = async () => {
       try {
-        const { data } = await axios.get(`/api/products/categories`);
+        const { data } = await API.get(`/api/products/categories`);
         setCategories(data);
       } catch (err) {
         enqueueSnackbar(getError(err), { variant: "error" });
