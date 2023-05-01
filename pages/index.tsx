@@ -64,23 +64,19 @@ export default function Home() {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const results = await Promise.allSettled([
-          API.get(`/api/products`).catch(e => e),
-          API.get(`/api/products/categories/${category}`).catch(e => e),
-          API.get(`/api/products/brands/${brand}`).catch(e => e),
-        ]);
+        const results = await Promise.all([
+          API.get(`/api/products`).then(promise=> promise.data.slice(0, 20)),
+          API.get(`/api/products/categories/${category}`).then(promise=> promise.data.slice(0, 20)),
+          API.get(`/api/products/brands/${brand}`).then(promise=> promise.data.slice(0, 20)),
+        ].map(promise=> promise.catch(error => error)));
 
-        const fulfilledResults = results
-          .filter((result) => result.status === "fulfilled")
-          // @ts-ignore
-          .map((result) => result.value.data);
+        const [allProductsData, categoryData, brandData] = results
 
-        const [allProductsData, categoryData, brandData] =
-          fulfilledResults;
+        console.log(allProductsData, categoryData, brandData)
 
         dispatch({
           type: "PRODUCT_ADD_ITEM",
-          payload: allProductsData.slice(0, 20),
+          payload: allProductsData,
         });
 
         setCategoryState((prev) => ({ ...prev, categoryData }));

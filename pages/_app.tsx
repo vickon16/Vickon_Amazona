@@ -5,7 +5,6 @@ import { StoreProvider } from "@/store";
 import { SnackbarProvider, useSnackbar } from "notistack";
 import { PayPalScriptProvider } from "@paypal/react-paypal-js";
 import { Loader } from "@/components";
-import { API} from "@/utils";
 
 export default function App({ Component, pageProps }: AppProps) {
   const [isSSR, setIsSSR] = useState(true);
