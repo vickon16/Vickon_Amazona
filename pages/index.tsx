@@ -1,8 +1,6 @@
 import {
-  Error,
   FormLogin,
   Layout,
-  Loader,
   ProductsSection,
   ImagesDisplay,
 } from "@/components";
@@ -21,36 +19,21 @@ const brands = ["Oliver", "Casely", "Nike", "Adidas"];
 
 type Props = {
   allProductsData: IProduct[];
-  categoryData: IProduct[];
-  brandData: IProduct[];
 };
 
-export default function Home({
-  allProductsData,
-  categoryData,
-  brandData,
-}: Props) {
+export default function Home({ allProductsData }: Props) {
+  const [category, setCategory] = useState("White");
+  const [brand, setBrand] = useState("Nike");
   const { enqueueSnackbar } = useSnackbar();
   const {
-    state: { userInfo, allProducts },
+    state: { userInfo },
     dispatch,
   } = useStoreContext();
   const router = useRouter();
 
-  const { category = "White", brand = "Nike" } = router.query;
-
-  const filterEventSearch = ({ category, brand }: ISearchType) => {
-    const path = router.pathname;
-    const { query } = router;
-
-    if (category) query.category = category;
-    if (brand) query.brand = brand;
-
-    router.push({
-      pathname: path,
-      query: query,
-    });
-  };
+  // console.log(allProductsData)
+  const categoryData = allProductsData.filter(product => product.category.includes(category));
+  const brandData = allProductsData.filter(product => product.brand === brand);
 
   const submitHandler = async ({ email, password }: IFormInputs) => {
     try {
@@ -154,9 +137,7 @@ export default function Home({
           </label>
           <select
             value={category}
-            onChange={(e: any) =>
-              filterEventSearch({ category: e.target.value })
-            }
+            onChange={(e: any) => setCategory(e.target.value)}
             className="px-3 py-2 text-md sm:text-lg bg-primary2 dark:bg-secondary2 shadow-lg hover:opacity-80 cursor-pointer rounded-md outline-none border-0"
           >
             {categories.length > 0 ? (
@@ -185,7 +166,7 @@ export default function Home({
           </label>
           <select
             value={brand}
-            onChange={(e: any) => filterEventSearch({ brand: e.target.value })}
+            onChange={(e: any) => setBrand(e.target.value)}
             className="px-3 py-2 text-md sm:text-lg bg-primary2 dark:bg-secondary2 shadow-lg hover:opacity-80 cursor-pointer rounded-md outline-none border-0"
           >
             {brands.length > 0 ? (
@@ -206,26 +187,12 @@ export default function Home({
   );
 }
 
-export const getServerSideProps = async ({ query }: any) => {
-  const { category, brand } = query;
-
-  const results = await Promise.all([
-    API.get(`/api/products`).then((promise) => promise.data.slice(0, 20)),
-    API.get(`/api/products/categories/${category || "White"}`).then((promise) =>
-      promise.data.slice(0, 20)
-    ),
-    API.get(`/api/products/brands/${brand || "Nike"}`).then((promise) =>
-      promise.data.slice(0, 20)
-    ),
-  ]);
-
-  const [allProductsData, categoryData, brandData] = results;
+export const getServerSideProps = async () => {
+  const { data } = await API.get(`/api/products`);
 
   return {
     props: {
-      allProductsData,
-      categoryData,
-      brandData,
+      allProductsData: data,
     },
   };
 };
