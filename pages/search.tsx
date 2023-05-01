@@ -51,7 +51,14 @@ export default function SearchScreen() {
     const fetchCategories = async () => {
       try {
         const { data } = await API.get(`/api/products/categories`);
-        setCategories(data);
+        const mappedData = data
+          .map((cat: { category: string[] }) => cat.category)
+          .reduce((prev: string[], curr: string[]) => prev.concat(curr))
+          .filter(
+            (cat: string, index: number, self: string[]) =>
+              self.indexOf(cat) === index
+          );
+        setCategories(mappedData);
       } catch (err) {
         enqueueSnackbar(getError(err), { variant: "error" });
       }

@@ -11,15 +11,7 @@ export default async function handler(
 
     try {
       const data = await client.fetch(query);
-      const mappedData = data
-        .map((cat: { category: string[] }) => cat.category)
-        .reduce((prev: string[], curr: string[]) => prev.concat(curr))
-        .filter(
-          (cat: string, index: number, self: string[]) =>
-            self.indexOf(cat) === index
-        );
-
-      res.status(200).json(mappedData);
+      res.status(200).json(data);
     } catch (error) {
       res.status(500).json(`Failed to fetch all Categories`);
     }
