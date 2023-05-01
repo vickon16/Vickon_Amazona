@@ -79,16 +79,6 @@ export type ISearchType = {
   price? : string;
   rating? : string;
   query? : string;
+  brand? : string;
 };
 
-export type categoryStateType = {
-  category: string;
-  categories: string[];
-  categoryData: IProduct[] | [];
-};
-
-export type brandStateType = {
-  brand: string;
-  brands: string[];
-  brandData: IProduct[] | [];
-};

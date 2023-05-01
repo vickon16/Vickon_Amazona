@@ -7,12 +7,7 @@ import {
   ImagesDisplay,
 } from "@/components";
 import { useStoreContext } from "@/store";
-import {
-  IFormInputs,
-  IProduct,
-  brandStateType,
-  categoryStateType,
-} from "@/types";
+import { IFormInputs, IProduct, ISearchType } from "@/types";
 import { API, getError } from "@/utils";
 import ButtonIcon from "@mui/material/Button";
 import Image from "next/image";
@@ -21,33 +16,41 @@ import { useRouter } from "next/router";
 import { useSnackbar } from "notistack";
 import { useEffect, useState } from "react";
 
-const categoryInitialState = {
-  category: "White",
-  categories: ["Blue", "Red", "White", "Gray", "Brown", "Black", "Green"],
-  categoryData: [],
+const categories = ["Blue", "Red", "White", "Gray", "Brown", "Black", "Green"];
+const brands = ["Oliver", "Casely", "Nike", "Adidas"];
+
+type Props = {
+  allProductsData: IProduct[];
+  categoryData: IProduct[];
+  brandData: IProduct[];
 };
 
-const brandInitialState = {
-  brand: "Nike",
-  brands: ["Oliver", "Casely", "Nike", "Adidas"],
-  brandData: [],
-};
-
-export default function Home() {
-  const [{ categories, category, categoryData }, setCategoryState] =
-    useState<categoryStateType>(categoryInitialState);
-  const [{ brand, brands, brandData }, setBrandState] =
-    useState<brandStateType>(brandInitialState);
-  const [loadingProducts, setIsLoadingProducts] = useState(true);
-  const [loadingCategories, setIsLoadingCategories] = useState(true);
-  const [loadingBrands, setIsLoadingBrands] = useState(true);
-  const [error, setIsError] = useState("");
+export default function Home({
+  allProductsData,
+  categoryData,
+  brandData,
+}: Props) {
   const { enqueueSnackbar } = useSnackbar();
   const {
     state: { userInfo, allProducts },
     dispatch,
   } = useStoreContext();
   const router = useRouter();
+
+  const { category = "White", brand = "Nike" } = router.query;
+
+  const filterEventSearch = ({ category, brand }: ISearchType) => {
+    const path = router.pathname;
+    const { query } = router;
+
+    if (category) query.category = category;
+    if (brand) query.brand = brand;
+
+    router.push({
+      pathname: path,
+      query: query,
+    });
+  };
 
   const submitHandler = async ({ email, password }: IFormInputs) => {
     try {
@@ -64,30 +67,12 @@ export default function Home() {
   };
 
   useEffect(() => {
-    const fetchData = async () => {
-      try {
-        const {data : allProductsData} =  await API.get(`/api/products`);
-        dispatch({
-          type: "PRODUCT_ADD_ITEM",
-          payload: allProductsData,
-        });
-        setIsLoadingProducts(false);
-
-        const {data : categoryData} = await  API.get(`/api/products/categories/${category}`);
-        setCategoryState((prev) => ({ ...prev, categoryData }));
-        setIsLoadingCategories(false);
-
-        const {data : brandData} = await API.get(`/api/products/brands/${brand}`);
-        setBrandState((prev) => ({ ...prev, brandData }));
-        setIsLoadingBrands(false);
-
-      } catch (err: any) {
-        setIsError(getError(err));
-      }
-    };
-
-    fetchData();
-  }, [brand, category, dispatch, userInfo]);
+    dispatch({
+      type: "PRODUCT_ADD_ITEM",
+      payload: allProductsData,
+    });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   return (
     <Layout>
@@ -148,12 +133,6 @@ export default function Home() {
         <div className="w-full flex-1 lg:mt-10">
           {!userInfo ? (
             <FormLogin submitHandler={submitHandler} />
-          ) : loadingCategories ? (
-            <div className="w-full h-full flex items-center justify-center">
-              <Loader />
-            </div>
-          ) : error ? (
-            <Error error={error} />
           ) : (
             <div className="flex justify-center w-full">
               <ImagesDisplay categoryData={categoryData} />
@@ -163,98 +142,90 @@ export default function Home() {
       </section>
 
       {/* all products section */}
-      {loadingProducts ? (
-        <div className="w-full h-full flex items-center">
-          <Loader />
-        </div>
-      ) : error ? (
-        <Error error={error} />
-      ) : (
-        <section className="flex flex-col gap-y-4 w-full mb-8">
-          <ProductsSection title="New Products" allProducts={allProducts} />
-        </section>
-      )}
+      <section className="flex flex-col gap-y-4 w-full mb-8">
+        <ProductsSection title="New Products" allProducts={allProductsData} />
+      </section>
 
       {/* categories section */}
-      {loadingCategories ? (
-        <div className="w-full h-full flex items-center">
-          <Loader />
+      <section className="mt-10">
+        <div className="flex items-center gap-x-3">
+          <label className="text-md sm:text-lg font-semibold mr-2">
+            Select Category :{" "}
+          </label>
+          <select
+            value={category}
+            onChange={(e: any) =>
+              filterEventSearch({ category: e.target.value })
+            }
+            className="px-3 py-2 text-md sm:text-lg bg-primary2 dark:bg-secondary2 shadow-lg hover:opacity-80 cursor-pointer rounded-md outline-none border-0"
+          >
+            {categories.length > 0 ? (
+              categories.map((cat, i) => (
+                <option key={cat + i} value={cat}>
+                  {cat}
+                </option>
+              ))
+            ) : (
+              <div>No category Available</div>
+            )}
+          </select>
         </div>
-      ) : error ? (
-        <Error error={error} />
-      ) : (
-        <section className="mt-10">
-          <div className="flex items-center gap-x-3">
-            <label className="text-md sm:text-lg font-semibold mr-2">
-              Select Category :{" "}
-            </label>
-            <select
-              value={category}
-              onChange={(e: any) =>
-                setCategoryState((prev) => ({
-                  ...prev,
-                  category: e.target.value,
-                }))
-              }
-              className="px-3 py-2 text-md sm:text-lg bg-primary2 dark:bg-secondary2 shadow-lg hover:opacity-80 cursor-pointer rounded-md outline-none border-0"
-            >
-              {categories.length > 0 ? (
-                categories.map((cat, i) => (
-                  <option key={cat + i} value={cat}>
-                    {cat}
-                  </option>
-                ))
-              ) : (
-                <div>No category Available</div>
-              )}
-            </select>
-          </div>
 
-          <ProductsSection
-            title={`Category - ${category}`}
-            allProducts={categoryData}
-          />
-        </section>
-      )}
+        <ProductsSection
+          title={`Category - ${category}`}
+          allProducts={categoryData}
+        />
+      </section>
 
       {/* brand section */}
-      {loadingBrands ? (
-        <div className="w-full h-full flex items-center">
-          <Loader />
+      <section className="mt-10">
+        <div className="flex items-center gap-x-3">
+          <label className="text-md sm:text-lg font-semibold mr-2">
+            Select Brand :{" "}
+          </label>
+          <select
+            value={brand}
+            onChange={(e: any) => filterEventSearch({ brand: e.target.value })}
+            className="px-3 py-2 text-md sm:text-lg bg-primary2 dark:bg-secondary2 shadow-lg hover:opacity-80 cursor-pointer rounded-md outline-none border-0"
+          >
+            {brands.length > 0 ? (
+              brands.map((brand, i) => (
+                <option key={brand + i} value={brand}>
+                  {brand}
+                </option>
+              ))
+            ) : (
+              <div>No Brand Available</div>
+            )}
+          </select>
         </div>
-      ) : error ? (
-        <Error error={error} />
-      ) : (
-        <section className="mt-10">
-          <div className="flex items-center gap-x-3">
-            <label className="text-md sm:text-lg font-semibold mr-2">
-              Select Brand :{" "}
-            </label>
-            <select
-              value={brand}
-              onChange={(e: any) =>
-                setBrandState((prev) => ({
-                  ...prev,
-                  brand: e.target.value,
-                }))
-              }
-              className="px-3 py-2 text-md sm:text-lg bg-primary2 dark:bg-secondary2 shadow-lg hover:opacity-80 cursor-pointer rounded-md outline-none border-0"
-            >
-              {brands.length > 0 ? (
-                brands.map((brand, i) => (
-                  <option key={brand + i} value={brand}>
-                    {brand}
-                  </option>
-                ))
-              ) : (
-                <div>No Brand Available</div>
-              )}
-            </select>
-          </div>
 
-          <ProductsSection title={`Brand - ${brand}`} allProducts={brandData} />
-        </section>
-      )}
+        <ProductsSection title={`Brand - ${brand}`} allProducts={brandData} />
+      </section>
     </Layout>
   );
 }
+
+export const getServerSideProps = async ({ query }: any) => {
+  const { category, brand } = query;
+
+  const results = await Promise.all([
+    API.get(`/api/products`).then((promise) => promise.data.slice(0, 20)),
+    API.get(`/api/products/categories/${category || "White"}`).then((promise) =>
+      promise.data.slice(0, 20)
+    ),
+    API.get(`/api/products/brands/${brand || "Nike"}`).then((promise) =>
+      promise.data.slice(0, 20)
+    ),
+  ]);
+
+  const [allProductsData, categoryData, brandData] = results;
+
+  return {
+    props: {
+      allProductsData,
+      categoryData,
+      brandData,
+    },
+  };
+};
