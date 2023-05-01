@@ -68,7 +68,7 @@ export default function Home() {
           API.get(`/api/products`).then(promise=> promise.data.slice(0, 20)),
           API.get(`/api/products/categories/${category}`).then(promise=> promise.data.slice(0, 20)),
           API.get(`/api/products/brands/${brand}`).then(promise=> promise.data.slice(0, 20)),
-        ].map(promise=> promise.catch(error => error)));
+        ]);
 
         const [allProductsData, categoryData, brandData] = results
 
