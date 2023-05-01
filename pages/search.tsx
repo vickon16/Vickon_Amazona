@@ -1,12 +1,11 @@
 import { Alert, Button, Grid, MenuItem, Rating, Select } from "@mui/material";
-import axios from "axios";
 import { useRouter } from "next/router";
 import { useSnackbar } from "notistack";
 import React, { useEffect, useState } from "react";
 import Layout from "../components/Layout";
 import { client } from "../utils/client";
 import { IProductState, ISearchType } from "@/types";
-import { getError } from "@/utils";
+import { API, getError } from "@/utils";
 import { Loader, Product } from "@/components";
 
 const prices = [
