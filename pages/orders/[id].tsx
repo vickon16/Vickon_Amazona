@@ -26,9 +26,8 @@ import { useStoreContext } from "@/store";
 import { urlFor } from "@/utils/image";
 import { ArrowBack } from "@mui/icons-material";
 import Link from "next/link";
-import { IOrder } from "@/types";
 
-function OrderScreen({ orderData }: {orderData : IOrder}) {
+function OrderScreen({ id: orderId }: { id: string }) {
   const { enqueueSnackbar } = useSnackbar();
   const [orderState, dispatch] = useReducer(paypalReducer, paypalInitialState);
   const { loading, error, order, successPay }: paypalInitialStateType =
@@ -41,6 +40,8 @@ function OrderScreen({ orderData }: {orderData : IOrder}) {
 
   const [{ isPending }, paypalDispatch] = usePayPalScriptReducer();
 
+  console.log(order, successPay);
+
   useEffect(() => {
     if (!userInfo) {
       router.push("/login");
@@ -50,15 +51,15 @@ function OrderScreen({ orderData }: {orderData : IOrder}) {
     const fetchOrder = async () => {
       try {
         dispatch({ type: "FETCH_REQUEST" });
-        setTimeout(() => {
-          dispatch({ type: "FETCH_SUCCESS", payload: orderData });
-        }, 2000)
+        const { data } = await API.get(`/api/orders/${orderId}`);
+
+        dispatch({ type: "FETCH_SUCCESS", payload: data });
       } catch (err) {
         dispatch({ type: "FETCH_FAIL", payload: getError(err) });
       }
     };
 
-    if (!order?._id || successPay || (order?._id && order?._id !== orderData?._id)) {
+    if (!order?._id || successPay || (order?._id && order?._id !== orderId)) {
       fetchOrder();
       if (successPay) {
         dispatch({ type: "PAY_RESET" });
@@ -80,7 +81,7 @@ function OrderScreen({ orderData }: {orderData : IOrder}) {
       };
       loadPaypalScript();
     }
-  }, [order, successPay, paypalDispatch, router, userInfo, orderData]);
+  }, [order, orderId, successPay, paypalDispatch, router, userInfo]);
 
   function createOrder(data: any, actions: any) {
     return actions.order
@@ -117,9 +118,9 @@ function OrderScreen({ orderData }: {orderData : IOrder}) {
   }
 
   return (
-    <Layout title={`Order ${orderData._id}`}>
+    <Layout title={`Order ${orderId}`}>
       <h2 className="text-clampBase mb-6 mt-10 font-semibold">
-        Order - <span className="font-normal text-clampSm">{orderData._id}</span>
+        Order - <span className="font-normal text-clampSm">{orderId}</span>
       </h2>
 
       {loading ? (
@@ -271,10 +272,7 @@ export async function getServerSideProps({
 }: {
   params: { id: string };
 }) {
-
-   const { data } = await API.get(`/api/orders/${id}`);
-
-  return { props: { orderData : data } };
+  return { props: { id } };
 }
 
 export default OrderScreen;

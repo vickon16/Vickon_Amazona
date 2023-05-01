@@ -1,4 +1,5 @@
 import {
+  Error,
   FormLogin,
   Layout,
   Loader,
@@ -6,36 +7,45 @@ import {
   ImagesDisplay,
 } from "@/components";
 import { useStoreContext } from "@/store";
-import { IFormInputs, IProduct } from "@/types";
+import {
+  IFormInputs,
+  IProduct,
+  brandStateType,
+  categoryStateType,
+} from "@/types";
 import { API, getError } from "@/utils";
-import { Button } from "@mui/material";
+import ButtonIcon from "@mui/material/Button";
 import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/router";
 import { useSnackbar } from "notistack";
 import { useEffect, useState } from "react";
 
-type Props = {
-  categoryData: IProduct[];
-  brandData: IProduct[];
-  allProductsData: IProduct[];
-  categories: string[];
-  brands: string[];
+const categoryInitialState = {
+  category: "White",
+  categories: ["Blue", "Red", "White", "Gray", "Brown", "Black", "Green"],
+  categoryData: [],
 };
 
-export default function Home({
-  categoryData,
-  brandData,
-  allProductsData,
-  categories,
-  brands,
-}: Props) {
-  const [loading, setIsLoading] = useState(true);
-  const { enqueueSnackbar } = useSnackbar();
-  const {state: { userInfo },dispatch} = useStoreContext();
-  const router = useRouter();
+const brandInitialState = {
+  brand: "Nike",
+  brands: ["Oliver", "Casely", "Nike", "Adidas"],
+  brandData: [],
+};
 
-  const { category = "White", brand = "Nike" } = router.query;
+export default function Home() {
+  const [{ categories, category, categoryData }, setCategoryState] =
+    useState<categoryStateType>(categoryInitialState);
+  const [{ brand, brands, brandData }, setBrandState] =
+    useState<brandStateType>(brandInitialState);
+  const [loading, setIsLoading] = useState(true);
+  const [error, setIsError] = useState("");
+  const { enqueueSnackbar } = useSnackbar();
+  const {
+    state: { userInfo, allProducts },
+    dispatch,
+  } = useStoreContext();
+  const router = useRouter();
 
   const submitHandler = async ({ email, password }: IFormInputs) => {
     try {
@@ -51,31 +61,39 @@ export default function Home({
     }
   };
 
-  const filterChangeEvents = ({
-    category,
-    brand,
-  }: {
-    category?: string;
-    brand?: string;
-  }) => {
-    const path = router.pathname;
-    const { query } = router;
-
-    if (category) query.category = category;
-    if (brand) query.brand = brand;
-
-    router.push({
-      pathname: path,
-      query: query,
-    });
-  };
-
   useEffect(() => {
-    dispatch({ type: "PRODUCT_ADD_ITEM", payload: allProductsData });
-    setTimeout(() => {
-      setIsLoading(false);
-    }, 2000);
-  }, [allProductsData, dispatch]);
+    const fetchData = async () => {
+      try {
+        const results = await Promise.allSettled([
+          API.get(`/api/products`).catch(e => e),
+          API.get(`/api/products/categories/${category}`).catch(e => e),
+          API.get(`/api/products/brands/${brand}`).catch(e => e),
+        ]);
+
+        const fulfilledResults = results
+          .filter((result) => result.status === "fulfilled")
+          // @ts-ignore
+          .map((result) => result.value.data);
+
+        const [allProductsData, categoryData, brandData] =
+          fulfilledResults;
+
+        dispatch({
+          type: "PRODUCT_ADD_ITEM",
+          payload: allProductsData.slice(0, 20),
+        });
+
+        setCategoryState((prev) => ({ ...prev, categoryData }));
+        setBrandState((prev) => ({ ...prev, brandData }));
+      } catch (err: any) {
+        setIsError(getError(err));
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    fetchData();
+  }, [brand, category, dispatch, userInfo]);
 
   return (
     <Layout>
@@ -105,12 +123,12 @@ export default function Home({
             </p>
 
             <Link href="/search">
-              <Button
+              <ButtonIcon
                 variant="outlined"
                 className=" !text-bgDark dark:!text-bgWhite !border-bgDark dark:!border-bgWhite"
               >
                 Explore
-              </Button>
+              </ButtonIcon>
             </Link>
           </div>
         </div>
@@ -140,6 +158,8 @@ export default function Home({
             <div className="w-full h-full flex items-center justify-center">
               <Loader />
             </div>
+          ) : error ? (
+            <Error error={error} />
           ) : (
             <div className="flex justify-center w-full">
               <ImagesDisplay categoryData={categoryData} />
@@ -153,9 +173,11 @@ export default function Home({
         <div className="w-full h-full flex items-center">
           <Loader />
         </div>
+      ) : error ? (
+        <Error error={error} />
       ) : (
         <section className="flex flex-col gap-y-4 w-full mb-8">
-          <ProductsSection title="New Products" allProducts={allProductsData} />
+          <ProductsSection title="New Products" allProducts={allProducts} />
         </section>
       )}
 
@@ -164,6 +186,8 @@ export default function Home({
         <div className="w-full h-full flex items-center">
           <Loader />
         </div>
+      ) : error ? (
+        <Error error={error} />
       ) : (
         <section className="mt-10">
           <div className="flex items-center gap-x-3">
@@ -173,7 +197,10 @@ export default function Home({
             <select
               value={category}
               onChange={(e: any) =>
-                filterChangeEvents({ category: e.target.value })
+                setCategoryState((prev) => ({
+                  ...prev,
+                  category: e.target.value,
+                }))
               }
               className="px-3 py-2 text-md sm:text-lg bg-primary2 dark:bg-secondary2 shadow-lg hover:opacity-80 cursor-pointer rounded-md outline-none border-0"
             >
@@ -201,6 +228,8 @@ export default function Home({
         <div className="w-full h-full flex items-center">
           <Loader />
         </div>
+      ) : error ? (
+        <Error error={error} />
       ) : (
         <section className="mt-10">
           <div className="flex items-center gap-x-3">
@@ -210,7 +239,10 @@ export default function Home({
             <select
               value={brand}
               onChange={(e: any) =>
-                filterChangeEvents({ brand: e.target.value })
+                setBrandState((prev) => ({
+                  ...prev,
+                  brand: e.target.value,
+                }))
               }
               className="px-3 py-2 text-md sm:text-lg bg-primary2 dark:bg-secondary2 shadow-lg hover:opacity-80 cursor-pointer rounded-md outline-none border-0"
             >
@@ -232,33 +264,3 @@ export default function Home({
     </Layout>
   );
 }
-
-export const getServerSideProps = async ({ query }: any) => {
-  const { category, brand } = query;
-
-  const results = await Promise.allSettled([
-    API.get(`/api/products`).catch((e) => e),
-    API.get(`/api/products/categories/${category || "White"}`).catch((e) => e),
-    API.get(`/api/products/categories`).catch((e) => e),
-    API.get(`/api/products/brands/${brand || "Nike"}`).catch((e) => e),
-    API.get(`/api/products/brands`),
-  ]);
-
-  const fulfilledResults = results
-    .filter((result) => result.status === "fulfilled")
-    // @ts-ignore
-    .map((result) => result.value.data);
-
-  const [allProductsData, categoryData, categories, brandData, brands] =
-    fulfilledResults;
-
-  return {
-    props: {
-      categoryData: categoryData.slice(0, 20),
-      brandData: brandData.slice(0, 20),
-      allProductsData: allProductsData.slice(0, 20),
-      categories,
-      brands,
-    },
-  };
-};
