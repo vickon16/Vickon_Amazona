@@ -5,9 +5,8 @@ import {
   ImagesDisplay,
 } from "@/components";
 import { useStoreContext } from "@/store";
-import { IFormInputs, IProduct, ISearchType } from "@/types";
+import { IFormInputs, IProduct} from "@/types";
 import { API, getError } from "@/utils";
-import ButtonIcon from "@mui/material/Button";
 import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/router";
@@ -85,12 +84,11 @@ export default function Home({ allProductsData }: Props) {
             </p>
 
             <Link href="/search">
-              <ButtonIcon
-                variant="outlined"
-                className=" !text-bgDark dark:!text-bgWhite !border-bgDark dark:!border-bgWhite"
+              <button
+                className=" border px-5 py-1 rounded-sm !text-bgDark dark:!text-bgWhite !border-bgDark dark:!border-bgWhite"
               >
                 Explore
-              </ButtonIcon>
+              </button>
             </Link>
           </div>
         </div>

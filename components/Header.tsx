@@ -2,12 +2,11 @@ import React, { memo, useEffect, useState } from "react";
 import DarkModeSwitch from "./DarkModeSwitch";
 import Link from "next/link";
 import NavbarSearch from "./NavbarSearch";
-import { Badge } from "@mui/material";
-import { ShoppingCart, Cancel } from "@mui/icons-material";
 import { useStoreContext } from "@/store";
 import { useRouter } from "next/router";
 import { formatUserName } from "@/utils";
-import {GiHamburgerMenu} from "react-icons/gi";
+import { GiHamburgerMenu, GiCancel } from "react-icons/gi";
+import { FiShoppingCart } from "react-icons/fi";
 
 const listStyles =
   "p-3 text-lg text-bgDark hover:bg-gray-200 cursor-pointer rounded w-full bg-gray-100";
@@ -17,11 +16,13 @@ const Header = () => {
   const bodyStyle = document.body.style;
   const router = useRouter();
   const {
-    state: { cart : {cartItems}, userInfo },
+    state: {
+      cart: { cartItems },
+      userInfo,
+    },
     dispatch,
   } = useStoreContext();
   const [isLocked, setIsLocked] = useState(bodyStyle.overflowY === "hidden");
-
 
   useEffect(() => {
     bodyStyle.overflowY = isLocked ? "hidden" : "auto";
@@ -37,12 +38,12 @@ const Header = () => {
   const openNavModal = () => {
     setSidebarVisible(true);
     setIsLocked(true);
-  }
+  };
 
   const closeNavModal = () => {
     setSidebarVisible(false);
     setIsLocked(false);
-  }
+  };
 
   return (
     <header className="w-full max-w-1600 h-[75px] mx-auto px-3 sm:px-6 flex items-center justify-between gap-x-4 bg-primary dark:bg-secondary shadow-md dark:shadow-xl">
@@ -61,13 +62,12 @@ const Header = () => {
           <DarkModeSwitch />
         </span>
         <Link href="/cart">
-          <Badge
-            badgeContent={cartItems.length > 0 ? cartItems.length : null}
-            color="success"
-            className="cursor-pointer"
-          >
-            <ShoppingCart className="!text-3xl" />
-          </Badge>
+          <div className="cursor-pointer relative">
+            <div className="absolute -top-3 -right-3 w-[20px] h-[20px] rounded-full bg-emerald-600 text-bgWhite flex items-center justify-center">
+              {cartItems.length > 0 ? cartItems.length : 2}
+            </div>
+            <FiShoppingCart className="!text-3xl" />
+          </div>
         </Link>
         {userInfo && (
           <Link
@@ -96,10 +96,10 @@ const Header = () => {
           } z-[24] overflow-hidden p-3 absolute flex transform transition-transform duration-300 ease-in-out top-0 bottom-0 right-0 w-full h-screen max-w-[280px] bg-bgWhite shadow-lg text-black`}
           onClick={(e) => e.stopPropagation()}
         >
-          <Cancel
+          <GiCancel
             aria-label="close"
             onClick={closeNavModal}
-            className="absolute top-5 left-3 cursor-pointer !fill-secondary hover:scale-[1.05] !text-3xl"
+            className="absolute top-5 left-3 cursor-pointer !fill-secondary hover:scale-[1.05] !text-2xl"
           />
 
           <div className="content-body w-full h-full flex mt-20 overflow-y-auto">

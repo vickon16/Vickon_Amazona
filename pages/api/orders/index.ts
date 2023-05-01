@@ -1,4 +1,4 @@
-import { client} from "@/utils/client";
+import { client } from "@/utils/client";
 import { NextApiRequest, NextApiResponse } from "next";
 
 export default async function handler(
@@ -18,8 +18,10 @@ export default async function handler(
       },
     };
 
-    if (!user) return res.status(401).json("User does not exist");
-
+    if (!user) {
+      res.status(401).json("User does not exist");
+      return;
+    }
 
     try {
       const order = await client.create(orderDoc);

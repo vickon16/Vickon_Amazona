@@ -25,7 +25,8 @@ export default async function handler(
       const existUser = await client.fetch(query);
 
       if (existUser) {
-        return res.status(401).json("Email already exists");
+        res.status(401).json("Email already exists");
+        return;
       } else {
         const userData = await client.createIfNotExists(bodyData);
         const {_id, _createdAt, _updatedAt, email, isAdmin, name} = userData
