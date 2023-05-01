@@ -4,10 +4,10 @@ import Link from "next/link";
 import NavbarSearch from "./NavbarSearch";
 import { Badge } from "@mui/material";
 import { ShoppingCart, Cancel } from "@mui/icons-material";
-import MenuIcon from "@mui/icons-material/Menu";
 import { useStoreContext } from "@/store";
 import { useRouter } from "next/router";
 import { formatUserName } from "@/utils";
+import {GiHamburgerMenu} from "react-icons/gi";
 
 const listStyles =
   "p-3 text-lg text-bgDark hover:bg-gray-200 cursor-pointer rounded w-full bg-gray-100";
@@ -61,18 +61,25 @@ const Header = () => {
           <DarkModeSwitch />
         </span>
         <Link href="/cart">
-          <Badge badgeContent={cartItems.length > 0 ? cartItems.length : null} color="success" className="cursor-pointer">
+          <Badge
+            badgeContent={cartItems.length > 0 ? cartItems.length : null}
+            color="success"
+            className="cursor-pointer"
+          >
             <ShoppingCart className="!text-3xl" />
           </Badge>
         </Link>
         {userInfo && (
-          <Link href={`/profile?id=${userInfo?._id}`} className="rounded-full bg-primary2 dark:bg-secondary2 p-2 font-bold border border-gray-600 dark:border-gray-200">
+          <Link
+            href={`/profile?id=${userInfo?._id}`}
+            className="rounded-full bg-primary2 dark:bg-secondary2 p-2 font-bold border border-gray-600 dark:border-gray-200"
+          >
             <p>{formatUserName(userInfo?.name)}</p>
           </Link>
         )}
 
         <span className="cursor-pointer">
-          <MenuIcon onClick={openNavModal} className="!text-3xl" />
+          <GiHamburgerMenu onClick={openNavModal} className="!text-3xl" />
         </span>
       </div>
 
